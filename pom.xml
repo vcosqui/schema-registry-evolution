@@ -13,6 +13,7 @@ http://maven.apache.org/xsd/maven-4.0.0.xsd">
         <schemaRegistryUrl>!env.SCHEMA_REGISTRY_URL</schemaRegistryUrl>
         <schemaRegistryBasicAuthUserInfo>!env.SCHEMA_REGISTRY_BASIC_AUTH_USER_INFO</schemaRegistryBasicAuthUserInfo>
         <io.confluent.schema-registry.version>${confluent.version.range}</io.confluent.schema-registry.version>
+        <checkstyle.skip>true</checkstyle.skip>
     </properties>
 
     <build>
