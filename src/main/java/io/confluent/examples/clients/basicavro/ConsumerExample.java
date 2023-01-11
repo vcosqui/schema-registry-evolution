@@ -21,7 +21,7 @@ public class ConsumerExample {
     public static void main(final String[] args) throws IOException {
 
         final Properties props = new Properties();
-        try (InputStream inputStream = new FileInputStream("/Users/vcosqui/.confluent/java.config")) {
+        try (InputStream inputStream = new FileInputStream("~/.confluent/java.config")) {
             props.load(inputStream);
         }
 

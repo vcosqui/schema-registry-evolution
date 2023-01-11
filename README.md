@@ -1,5 +1,40 @@
 # Schema registry exercise
 
+## first, configure JVM clients
+
+```
+cat ~/.confluent/java.config
+# --------------------------------------
+# Confluent Cloud connection information
+# --------------------------------------
+# ENVIRONMENT_ID=env-12zp95
+# SERVICE_ACCOUNT_ID=sa-r06r0p
+# KAFKA_CLUSTER_ID=lkc-r5j6v1
+# SCHEMA_REGISTRY_CLUSTER_ID=lsrc-2r1y5q
+# --------------------------------------
+sasl.mechanism=PLAIN
+security.protocol=SASL_SSL
+bootstrap.servers=<>
+sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username='<>' password='<>';
+basic.auth.credentials.source=USER_INFO
+schema.registry.url=<>
+basic.auth.user.info=<>
+replication.factor=3
+## producer settings
+acks=all
+retries=0
+key.serializer=org.apache.kafka.common.serialization.StringSerializer
+value.serializer=io.confluent.kafka.serializers.KafkaAvroSerializer
+
+## consumer settings
+group.id=test-payments
+enable.auto.commit=true
+auto.commit.interval.ms=1000
+auto.offset.reset=earliest
+specific.avro.reader=true
+key.deserializer=org.apache.kafka.common.serialization.StringDeserializer
+value.deserializer=io.confluent.kafka.serializers.KafkaAvroDeserializer
+```
 ## Send and consume some messages and check Schema Registry impact
 
 * Create topic `transactions` in Confluent Cloud with default settings
