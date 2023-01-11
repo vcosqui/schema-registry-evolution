@@ -19,7 +19,7 @@ public class ProducerExample {
     public static void main(final String[] args) throws IOException {
 
         final Properties props = new Properties();
-        try (InputStream inputStream = new FileInputStream("~/.confluent/java.config")) {
+        try (InputStream inputStream = new FileInputStream("./java.config")) {
             props.load(inputStream);
         }
 

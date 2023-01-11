@@ -24,5 +24,13 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
+      - name: Adding secrets
+        run: |
+          echo "basic.auth.user.info=$SCHEMA_REGISTRY_BASIC_AUTH_USER_INFO" >> ./java.config
+          cat ./java.config
+        shell: bash
+        env:
+          SCHEMA_REGISTRY_BASIC_AUTH_USER_INFO: ${{secrets.SCHEMA_REGISTRY_BASIC_AUTH_USER_INFO}}
+
       - name: Build application
         run: make
