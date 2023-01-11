@@ -26,7 +26,16 @@ jobs:
 
       - name: Adding secrets
         run: |
+          
+          echo "bootstrap.servers=$BOOTSTRAP_SERVERS"
+          echo "bootstrap.servers=$BOOTSTRAP_SERVERS" >> ./java.config
+          echo "sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username='$USER' password='$PASSWORD';"
+          echo "sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username='$USER' password='$PASSWORD';" >> ./java.config
+  
+          echo "basic.auth.user.info=$SCHEMA_REGISTRY_BASIC_AUTH_USER_INFO"
           echo "basic.auth.user.info=$SCHEMA_REGISTRY_BASIC_AUTH_USER_INFO" >> ./java.config
+          echo "schema.registry.url=$SCHEMA_REGISTRY_URL"
+          echo "schema.registry.url=$SCHEMA_REGISTRY_URL" >> ./java.config
           cat ./java.config
         shell: bash
         env:
