@@ -30,7 +30,6 @@ jobs:
           echo "sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username='$KAFKA_USER' password='$KAFKA_PASSWORD';" >> ./java.config
           echo "basic.auth.user.info=$SCHEMA_REGISTRY_BASIC_AUTH_USER_INFO" >> ./java.config
           echo "schema.registry.url=$SCHEMA_REGISTRY_URL" >> ./java.config
-          cat ./java.config
         shell: bash
         env:
           BOOTSTRAP_SERVERS: ${{secrets.BOOTSTRAP_SERVERS}}
@@ -41,3 +40,6 @@ jobs:
 
       - name: Build application
         run: make
+
+      - name: Produce some messages
+        run: make produce
