@@ -2,23 +2,15 @@
 
 ## first, configure JVM clients
 
-```
-cat ~/.confluent/java.config
+And add the proper security settings and URLs at the end of the file
+```shell
+cat ~/java.config
 # --------------------------------------
 # Confluent Cloud connection information
 # --------------------------------------
-# ENVIRONMENT_ID=env-12zp95
-# SERVICE_ACCOUNT_ID=sa-r06r0p
-# KAFKA_CLUSTER_ID=lkc-r5j6v1
-# SCHEMA_REGISTRY_CLUSTER_ID=lsrc-2r1y5q
-# --------------------------------------
 sasl.mechanism=PLAIN
 security.protocol=SASL_SSL
-bootstrap.servers=<>
-sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username='<>' password='<>';
 basic.auth.credentials.source=USER_INFO
-schema.registry.url=<>
-basic.auth.user.info=<>
 replication.factor=3
 ## producer settings
 acks=all
@@ -34,6 +26,12 @@ auto.offset.reset=earliest
 specific.avro.reader=true
 key.deserializer=org.apache.kafka.common.serialization.StringDeserializer
 value.deserializer=io.confluent.kafka.serializers.KafkaAvroDeserializer
+
+## secrets
+bootstrap.servers=
+sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username='' password='';
+schema.registry.url=
+basic.auth.user.info=
 ```
 ## Send and consume some messages and check Schema Registry impact
 
@@ -47,67 +45,69 @@ value.deserializer=io.confluent.kafka.serializers.KafkaAvroDeserializer
     * Check Confluent Cloud schema for topic `transactions`
         * auto schema registration only in DEV, disable with == auto.register.schemas=false, for PROD use REST interface
         * backwards compatible why? Default new consumers should be able to read ALL
-          ```curl -s -X GET -u $SCHEMA_REGISTRY_BASIC_AUTH_USER_INFO $SCHEMA_REGISTRY_URL/subjects/transaction-value | jq .```
-          ```curl -s -X GET -u $SCHEMA_REGISTRY_BASIC_AUTH_USER_INFO $SCHEMA_REGISTRY_URL/subjects/transaction-value/versions/latest | jq .```
-naming convention topic-key topic-value
+        * naming convention topic-key topic-value
+          
+```shell
+curl --silent -X GET -u $SCHEMA_REGISTRY_BASIC_AUTH_USER_INFO $SCHEMA_REGISTRY_URL/subjects/ | jq .
+```
+
+```shell
+curl --silent -X GET -u $SCHEMA_REGISTRY_BASIC_AUTH_USER_INFO $SCHEMA_REGISTRY_URL/subjects/transactions-value/versions | jq .
+```
+
+```shell
+curl --silent -X GET -u $SCHEMA_REGISTRY_BASIC_AUTH_USER_INFO $SCHEMA_REGISTRY_URL/subjects/transactions-value/versions/1 | jq .
+```
 
 ## Schema evolution
 you have seen the benefit of *Schema Registry* as being centralized schema management that enables client applications to register and retrieve globally unique schema ids. The main value of Schema Registry, however, is in enabling schema evolution. Similar to how APIs evolve and need to be compatible for all applications that rely on old and new versions of the API, schemas also evolve and likewise need to be compatible for all applications that rely on old and new versions of a schema. This schema evolution is a natural behavior of how applications and data develop over time.
 Schema Registry allows for schema evolution and provides compatibility checks to ensure that the contract between producers and consumers is not broken. This allows producers and consumers to update independently and evolve their schemas independently
 
-Transitivity
-* transitive: ensures compatibility between X-2 <==> X-1 and X-1 <==> X and X-2 <==> X
-* non-transitive: ensures compatibility between X-2 <==> X-1 and X-1 <==> X, but not necessarily X-2 <==> X
-  Types
-* BACKWARD: (default) consumers using the new schema can read data written by producers using the latest registered schema
-* BACKWARD_TRANSITIVE: consumers using the new schema can read data written by producers using all previously registered schemas
-* FORWARD: consumers using the latest registered schema can read data written by producers using the new schema
-* FORWARD_TRANSITIVE: consumers using all previously registered schemas can read data written by producers using the new schema
-* FULL: the new schema is forward and backward compatible with the latest registered schema
-* FULL_TRANSITIVE: the new schema is forward and backward compatible with all previously registered schemas
-* NONE: schema compatibility checks are disabled
 
-BACKWARD COMPATIBILITY
+## BACKWARD COMPATIBILITY
 IoT devices that are hard to control but control of the consumers (calculate the device position)
 Now we want to evolve the payment entity since a new attribute is required by business
 Add new field region Payment2a.asvc
 Is this backwards compatible???? Can new consumers read ALL data => NO they will fail, lets see how men plugin can help
 
-FAILING COMPATIBILITY CHECKS
+### FAILING COMPATIBILITY CHECKS
 
-* Pom.xml > sr plugin
-  UPDATE ASVC in pom.xml
+#### fail with maven plugin 
+* pom.xml > sr plugin
+  UPDATE Payment.asvc with new field
+  `{"name": "region", "type": "string"}`
+```shell
   mvn io.confluent:kafka-schema-registry-maven-plugin:test-compatibility \
   "-DschemaRegistryUrl=$SCHEMA_REGISTRY_URL" \
   "-DschemaRegistryBasicAuthUserInfo=$SCHEMA_REGISTRY_BASIC_AUTH_USER_INFO"
+```
+> Execution default-cli of goal io.confluent:kafka-schema-registry-maven-plugin:7.3.1:test-compatibility failed: One or more schemas found to be incompatible with the current version
 
->>>>>>>>>>>> Execution default-cli of goal io.confluent:kafka-schema-registry-maven-plugin:7.3.1:test-compatibility failed: One or more schemas found to be incompatible with the current version
+#### fail with rest API
 
-Not only for maven, Try to register the new schema Payment2a manually to Schema Registry, which is a useful way for non-Java clients to check compatibility from the command line:
+Not only for maven, Try to register the new schema Payment2a manually to Schema Registry, which is a useful way for non-Java clients to check compatibility from the command line:
+```shell
 curl -X POST -H "Content-Type: application/vnd.schemaregistry.v1+json" \
 --data '{"schema": "{\"type\":\"record\",\"name\":\"Payment\",\"namespace\":\"io.confluent.examples.clients.basicavro\",\"fields\":[{\"name\":\"id\",\"type\":\"string\"},{\"name\":\"amount\",\"type\":\"double\"},{\"name\":\"region\",\"type\":\"string\"}]}"}' \
 -u $SCHEMA_REGISTRY_BASIC_AUTH_USER_INFO \
 $SCHEMA_REGISTRY_URL/subjects/transactions-value/versions
->>>>>>>>>>>> error_code":409
+```
+> error_code":409
 
-Try the UI as well, add
-,{ "name": "region", "type": "string"}
+#### fail with CC UI
+Try the UI
 
+### PASSING COMPATIBILITY CHECKS
 
+Add region attribute with a default
+`,{ "name": "region", "type": "string", "default":"UNKNOWN"}`
 
-PASSING COMPATIBILITY CHECKS
-
-Payment2b.asvc
-edit in CC UI
-,{ "name": "region", "type": "string", "default":"UNKNOWN"}
-
-Think about the registered schema versions. The Schema Registry subject for the topic transactions that is called transactions-value has two schemas:
-* version 1 is Payment.avsc
-* version 2 is Payment2b.avsc that has the additional field for region with a default empty value.
+Think about the registered schema versions. The Schema Registry subject for the topic transactions that is called transactions-value has two schemas:
+* version 1 is Payment.avsc
+* version 2 is Payment2b.avsc that has the additional field for region with a default empty value.
   UI, Version history
 
-
-Test Forward compatibility mode
+## Test Forward compatibility mode
 ----------- more control of the producers and have to keep consumers always working,
 3rd party entity consuming the events, we guarantee that the new events created by producers are compatible
 
