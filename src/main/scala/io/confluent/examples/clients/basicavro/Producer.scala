@@ -18,7 +18,7 @@ object Producer {
         val orderId = s"id${Random.alphanumeric take 10 mkString}$i"
         val payment = new Payment(orderId, new Random().nextDouble)
         producer.send(new ProducerRecord[String, Payment]("transactions", orderId, payment))
-        logger.info("payment sent with id " + orderId)
+        logger.info(s"payment sent with id `${orderId}`")
         Thread.sleep(1000L)
       }
       producer.flush()

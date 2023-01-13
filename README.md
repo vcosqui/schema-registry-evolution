@@ -2,36 +2,13 @@
 
 ## first, configure JVM clients
 
-And add the proper security settings and URLs at the end of the file
+And add the proper security settings and URLs as evn variables
 ```shell
-cat ~/java.config
-# --------------------------------------
-# Confluent Cloud connection information
-# --------------------------------------
-sasl.mechanism=PLAIN
-security.protocol=SASL_SSL
-basic.auth.credentials.source=USER_INFO
-replication.factor=3
-## producer settings
-acks=all
-retries=0
-key.serializer=org.apache.kafka.common.serialization.StringSerializer
-value.serializer=io.confluent.kafka.serializers.KafkaAvroSerializer
-
-## consumer settings
-group.id=test-payments
-enable.auto.commit=true
-auto.commit.interval.ms=1000
-auto.offset.reset=earliest
-specific.avro.reader=true
-key.deserializer=org.apache.kafka.common.serialization.StringDeserializer
-value.deserializer=io.confluent.kafka.serializers.KafkaAvroDeserializer
-
-## secrets
-bootstrap.servers=
-sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username='' password='';
-schema.registry.url=
-basic.auth.user.info=
+export KAFKA_PASSWORD=***
+export KAFKA_USER=***
+export SCHEMA_REGISTRY_BASIC_AUTH_USER_INFO=***
+export SCHEMA_REGISTRY_URL=***
+export BOOTSTRAP_SERVERS=***
 ```
 ## Send and consume some messages and check Schema Registry impact
 
@@ -41,7 +18,7 @@ basic.auth.user.info=
     * `pom.xml` Check avro plugin configuration
     * `Payment.java` Check generated java file
     * `client.properties` show schema reg url, credentials
-    * Producer/Consumer, run them
+    * Producer/Consumer, run them `make produce-java` `make consume-java`
     * Check Confluent Cloud schema for topic `transactions`
         * auto schema registration only in DEV, disable with == auto.register.schemas=false, for PROD use REST interface
         * backwards compatible why? Default new consumers should be able to read ALL
@@ -74,7 +51,6 @@ Is this backwards compatible???? Can new consumers read ALL data => NO they will
 ### FAILING COMPATIBILITY CHECKS
 
 #### fail with maven plugin 
-* pom.xml > sr plugin
   UPDATE Payment.asvc with new field
   `{"name": "region", "type": "string"}`
 ```shell
