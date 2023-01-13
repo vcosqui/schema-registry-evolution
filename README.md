@@ -65,7 +65,8 @@ Schema Registry allows for schema evolution and provides compatibility checks to
 
 
 ## BACKWARD COMPATIBILITY
-IoT devices that are hard to control but control of the consumers (calculate the device position)
+> Example: when we have more control of the consumers and have to keep outdated producers working, IoT devices that are hard to control but control of the consumers (calculate the device position)
+
 Now we want to evolve the payment entity since a new attribute is required by business
 Add new field region Payment2a.asvc
 Is this backwards compatible???? Can new consumers read ALL data => NO they will fail, lets see how men plugin can help
@@ -92,7 +93,7 @@ curl -X POST -H "Content-Type: application/vnd.schemaregistry.v1+json" \
 -u $SCHEMA_REGISTRY_BASIC_AUTH_USER_INFO \
 $SCHEMA_REGISTRY_URL/subjects/transactions-value/versions
 ```
-> error_code":409
+> http error_code: 409
 
 #### fail with CC UI
 Try the UI
@@ -105,23 +106,23 @@ Add region attribute with a default
 Think about the registered schema versions. The Schema Registry subject for the topic transactions that is called transactions-value has two schemas:
 * version 1 is Payment.avsc
 * version 2 is Payment2b.avsc that has the additional field for region with a default empty value.
-  UI, Version history
+  CC UI, Version history
 
 ## Test Forward compatibility mode
------------ more control of the producers and have to keep consumers always working,
-3rd party entity consuming the events, we guarantee that the new events created by producers are compatible
+>Example: when we have more control of the producers and have to keep outdated consumers working,
+for example a 3rd party entity consuming the events, we guarantee that the new events created by producers are always compatible.
 
 CC UI, edit schema "compatibility settings" and set FW
 
-Check Payment3a.asvc and try to check its compatibility with a FW policy
+Check Payment.asvc and remove amount
 we cannot delete a field with FW, we have to keep the field but add UNKNOWN default
+updated producers would start creating messages without this filed that consumers would not understand
 
-Check Payment3b.asvc and try to check its compatibility with a FW policy
+Instead of deleting amount, we can set a default value `{"name": "amount", "type": "double", "default": 0}` try to check its compatibility with a FW policy
 We can include fields without default
 If a payment does not have an amount it's FREE!
 Payments now have a product name field that new consumers read only for new messages
 FW compatibility PREVENTS consumers from reading OLD messages!!!
-
 This is why FW is not default mode!!!
 
-Mention Full compatibility mode
+## Mention Full compatibility mode
