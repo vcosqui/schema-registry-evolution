@@ -41,5 +41,8 @@ jobs:
       - name: Build application
         run: make
 
-      - name: Produce some messages
-        run: make produce
+      - name: Produce some messages using Java client
+        run: make produce-java
+
+      - name: Produce some messages using Scala client
+        run: make produce-scala
