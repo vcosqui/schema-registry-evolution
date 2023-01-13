@@ -4,14 +4,13 @@
 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <properties>
         <!-- Keep versions as properties to allow easy modification -->
-        <java.version>8</java.version>
+        <java.version>11</java.version>
         <gson.version>2.2.4</gson.version>
         <!-- Maven properties for compilation -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <checkstyle.suppressions.location>checkstyle/suppressions.xml</checkstyle.suppressions.location>
-        <schemaRegistryUrl>!env.SCHEMA_REGISTRY_URL</schemaRegistryUrl>
-        <schemaRegistryBasicAuthUserInfo>!env.SCHEMA_REGISTRY_BASIC_AUTH_USER_INFO</schemaRegistryBasicAuthUserInfo>
+        <schemaRegistryUrl>${env.SCHEMA_REGISTRY_URL}</schemaRegistryUrl>
+        <schemaRegistryBasicAuthUserInfo>${env.SCHEMA_REGISTRY_BASIC_AUTH_USER_INFO}</schemaRegistryBasicAuthUserInfo>
         <io.confluent.schema-registry.version>7.3.1</io.confluent.schema-registry.version>
         <checkstyle.skip>true</checkstyle.skip>
         <activation.version>1.1.1</activation.version>
