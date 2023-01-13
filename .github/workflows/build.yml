@@ -24,13 +24,11 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-      - name: Adding secrets
-        run: |
-          echo "bootstrap.servers=$BOOTSTRAP_SERVERS" >> ./java.config
-          echo "sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username='$KAFKA_USER' password='$KAFKA_PASSWORD';" >> ./java.config
-          echo "basic.auth.user.info=$SCHEMA_REGISTRY_BASIC_AUTH_USER_INFO" >> ./java.config
-          echo "schema.registry.url=$SCHEMA_REGISTRY_URL" >> ./java.config
-        shell: bash
+      - name: Build application
+        run: make
+
+      - name: Produce some messages using Java client
+        run: make produce-java
         env:
           BOOTSTRAP_SERVERS: ${{secrets.BOOTSTRAP_SERVERS}}
           KAFKA_PASSWORD: ${{secrets.KAFKA_PASSWORD}}
@@ -38,11 +36,11 @@ jobs:
           SCHEMA_REGISTRY_BASIC_AUTH_USER_INFO: ${{secrets.SCHEMA_REGISTRY_BASIC_AUTH_USER_INFO}}
           SCHEMA_REGISTRY_URL: ${{secrets.SCHEMA_REGISTRY_URL}}
 
-      - name: Build application
-        run: make
-
-      - name: Produce some messages using Java client
-        run: make produce-java
-
       - name: Produce some messages using Scala client
         run: make produce-scala
+        env:
+          BOOTSTRAP_SERVERS: ${{secrets.BOOTSTRAP_SERVERS}}
+          KAFKA_PASSWORD: ${{secrets.KAFKA_PASSWORD}}
+          KAFKA_USER: ${{secrets.KAFKA_USER}}
+          SCHEMA_REGISTRY_BASIC_AUTH_USER_INFO: ${{secrets.SCHEMA_REGISTRY_BASIC_AUTH_USER_INFO}}
+          SCHEMA_REGISTRY_URL: ${{secrets.SCHEMA_REGISTRY_URL}}

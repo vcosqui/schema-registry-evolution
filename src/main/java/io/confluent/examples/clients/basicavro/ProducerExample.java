@@ -4,10 +4,7 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.log4j.Logger;
 
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
 import java.util.Random;
 
 import static java.lang.Math.abs;
@@ -22,12 +19,7 @@ public class ProducerExample {
     @SuppressWarnings("InfiniteLoopStatement")
     public static void main(final String[] args) throws IOException {
 
-        final Properties props = new Properties();
-        try (InputStream config = new FileInputStream("./java.config")) {
-            props.load(config);
-        }
-
-        try (KafkaProducer<String, Payment> producer = new KafkaProducer<>(props)) {
+        try (KafkaProducer<String, Payment> producer = new KafkaProducer<>(Env.getProperties())) {
             for (long i = 0; i < 10; i++) {
                 final String orderId = format("id{0}{1}", valueOf(abs(new Random().nextInt())), i);
                 Payment order = new Payment(orderId, new Random().nextDouble());

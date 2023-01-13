@@ -22,12 +22,7 @@ public class ConsumerExample {
     @SuppressWarnings("InfiniteLoopStatement")
     public static void main(final String[] args) throws IOException {
 
-        final Properties props = new Properties();
-        try (InputStream config = new FileInputStream("./java.config")) {
-            props.load(config);
-        }
-
-        try (final KafkaConsumer<String, Payment> consumer = new KafkaConsumer<>(props)) {
+        try (final KafkaConsumer<String, Payment> consumer = new KafkaConsumer<>(Env.getProperties())) {
             consumer.subscribe(ImmutableList.of("transactions"));
             while (true) {
                 final ConsumerRecords<String, Payment> records = consumer.poll(ofMillis(100));

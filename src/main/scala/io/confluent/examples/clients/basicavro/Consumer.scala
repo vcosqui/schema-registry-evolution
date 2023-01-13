@@ -4,9 +4,7 @@ import com.google.common.collect.ImmutableList
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.log4j.Logger.getLogger
 
-import java.io.FileInputStream
 import java.time.Duration
-import java.util.Properties
 import scala.jdk.CollectionConverters.IterableHasAsScala
 import scala.util.Using
 
@@ -17,12 +15,7 @@ object Consumer {
   @SuppressWarnings(Array("InfiniteLoopStatement"))
   def main(args: Array[String]): Unit = {
 
-    val props = new Properties
-    Using(new FileInputStream("./java.config")) { inputStream =>
-      props.load(inputStream)
-    }
-
-    Using(new KafkaConsumer[String, Payment](props)) { consumer =>
+    Using(new KafkaConsumer[String, Payment](Env.getProperties)) { consumer =>
       consumer.subscribe(ImmutableList.of("transactions"))
       while (true) {
         for (record <- consumer.poll(Duration.ofMillis(100)).asScala) {
