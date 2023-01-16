@@ -4,7 +4,7 @@
 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <properties>
         <!-- Keep versions as properties to allow easy modification -->
-        <java.version>11</java.version>
+        <java.version>17</java.version>
         <gson.version>2.2.4</gson.version>
         <!-- Maven properties for compilation -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -164,6 +164,18 @@ http://maven.apache.org/xsd/maven-4.0.0.xsd">
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>
             <version>2.13.2</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.avro</groupId>
+            <artifactId>avro-tools</artifactId>
+            <version>1.11.1</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
     <modelVersion>4.0.0</modelVersion>
