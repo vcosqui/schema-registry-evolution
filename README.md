@@ -1,6 +1,11 @@
 # Schema registry exercise
 
-## first, configure th environment
+## first, configure the environment
+
+Setup java 17 in your env
+```shell
+ sdk install java 17.0.5-zulu
+```
 
 And add the proper security settings and URLs as evn variables
 ```shell
