@@ -2,10 +2,9 @@
 
 ## first, configure the environment
 
-Setup maven and java 17 in your env
+Setup java 17 in your env
 ```shell
-sdk install maven 3.8.6
-sdk install java 17.0.5-zulu
+ sdk install java 17.0.5-zulu
 ```
 
 And add the proper security settings and URLs as evn variables
