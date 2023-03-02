@@ -7,6 +7,7 @@ import org.apache.log4j.Logger;
 import java.io.IOException;
 
 import static io.confluent.examples.clients.basicavro.Env.getProperties;
+import static java.lang.String.format;
 import static java.time.Duration.ofMillis;
 import static org.apache.log4j.Logger.getLogger;
 
@@ -17,14 +18,14 @@ public class ConsumerExample {
     @SuppressWarnings("InfiniteLoopStatement")
     public static void main(final String[] args) throws IOException {
 
-        try (final var consumer = new KafkaConsumer<>(getProperties())) {
+        try (final var consumer = new KafkaConsumer<String, Payment>(getProperties())) {
             consumer.subscribe(ImmutableList.of("transactions"));
             while (true) {
                 final var records = consumer.poll(ofMillis(100));
                 for (final var record : records) {
                     final var key = record.key();
                     final var value = record.value();
-                    logger.info("consumed message with key: " + key);
+                    logger.info(format("consumed message with key %s value %s", key, value));
                 }
             }
         }
