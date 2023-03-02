@@ -7,6 +7,7 @@ import org.apache.log4j.Logger;
 import java.util.Random;
 
 import static io.confluent.examples.clients.basicavro.Env.getProperties;
+import static io.confluent.examples.clients.basicavro.Payment.newBuilder;
 import static java.lang.Math.abs;
 import static java.lang.String.valueOf;
 import static java.text.MessageFormat.format;
@@ -22,7 +23,7 @@ public class ProducerExample {
         try (var producer = new KafkaProducer<String, Payment>(getProperties())) {
             for (long i = 0; i < 10; i++) {
                 final var orderId = format("id{0}{1}", valueOf(abs(new Random().nextInt())), i);
-                final var order = new Payment(orderId, new Random().nextDouble());
+                final var order = newBuilder().setId(orderId).setAmount(new Random().nextDouble()).build();
                 final var record = new ProducerRecord<>("transactions", orderId, order);
                 producer.send(record);
                 logger.info("transaction sent with id " + orderId);
