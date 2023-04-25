@@ -6,14 +6,20 @@ Setup java 17 in your env
 ```shell
  sdk install java 17.0.5-zulu
 ```
+Install maven
+```shell
+sdk install maven 3.8.6
+```
 
 And add the proper security settings and URLs as evn variables
 ```shell
+# broker url and secrets
+export BOOTSTRAP_SERVERS=***
 export KAFKA_PASSWORD=***
 export KAFKA_USER=***
-export SCHEMA_REGISTRY_BASIC_AUTH_USER_INFO=***
+# sr url and secrets
 export SCHEMA_REGISTRY_URL=***
-export BOOTSTRAP_SERVERS=***
+export SCHEMA_REGISTRY_BASIC_AUTH_USER_INFO=***
 ```
 ## Send and consume some messages and check Schema Registry impact
 
